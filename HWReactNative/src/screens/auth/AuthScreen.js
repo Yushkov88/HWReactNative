@@ -20,12 +20,13 @@ export const useRoute = (isAuth) => {
           name="Register"
           component={RegisterScreen}
         />
-        <AuthStack.Screen
-          options={{ headerShown: false }}
+        {/* <AuthStack.Screen
+            options={{ headerShown: false }}
           name="Home"
           component={HomeScreen}
-        />
+        /> */}
       </AuthStack.Navigator>
     );
   }
+  return <HomeScreen></HomeScreen>;
 };

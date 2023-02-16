@@ -74,7 +74,7 @@ export default function CreatePostsScreen({ navigation }) {
       setPostData((prevState) => ({ ...prevState, photo: photo.uri }));
       setLocation(location);
 
-      console.log("location", location);
+      // console.log("location", location);
     } catch (error) {
       console.log(error);
     }
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   cameraSnapBtn: {
-    marginBottom: 60,
+    marginBottom: 20,
     opacity: 0.7,
   },
   photoContainer: {
