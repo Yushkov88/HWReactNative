@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import {
   Text,
   View,
@@ -8,24 +9,27 @@ import {
   Image,
   FlatList,
 } from "react-native";
-import { Octicons } from "@expo/vector-icons";
-import { AntDesign } from "@expo/vector-icons";
-import { FontAwesome } from "@expo/vector-icons";
+import { Octicons, FontAwesome, AntDesign } from "@expo/vector-icons";
+import { collection, doc, onSnapshot } from "firebase/firestore";
+import { db } from "../../firebase/config";
 
-export default function DefaultPostsScreen({ navigation, route }) {
-  //   console.log("route", route);
+export default function DefaultPostsScreen({ navigation }) {
   const [posts, setPosts] = useState([]);
+  //   const [allComments, setAllComments] = useState([]);
+  //   console.log(posts.id);
+  const { email, name, avatar } = useSelector((state) => state.auth);
 
+  const getAllPosts = async () => {
+    const dbRef = collection(db, "posts");
+    onSnapshot(dbRef, (docSnap) =>
+      setPosts(docSnap.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
+    );
+  };
+  //   const dbRef = collection(db, "posts");
+  //   console.log(dbRef);
   useEffect(() => {
-    route.params &&
-      setPosts((prevState) => [
-        ...prevState,
-        { ...route.params.postData, coords: route.params.location },
-      ]);
-    // console.log("params", route.params);
-  }, [route.params]);
-
-  //   console.log("posts", posts);
+    getAllPosts();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -39,26 +43,27 @@ export default function DefaultPostsScreen({ navigation, route }) {
           <ImageBackground
             style={styles.avatar}
             source={require("../../../assets/images/defaultAvatar.jpg")}
-          ></ImageBackground>
+          >
+            {avatar && <Image style={styles.avatar} source={{ uri: avatar }} />}
+          </ImageBackground>
         </View>
         <View style={styles.userInfoWrapper}>
-          <Text style={styles.userName}>Natali Romanova</Text>
-          <Text style={styles.userEmail}>email@example.com</Text>
+          <Text style={styles.userName}>{name}</Text>
+          <Text style={styles.userEmail}>{email}</Text>
         </View>
       </TouchableOpacity>
 
       <FlatList
         data={posts}
-        keyExtractor={(item, indx) => indx.toString()}
+        keyExtractor={posts.id}
         renderItem={({ item }) => (
           <View style={styles.postsContainer}>
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() =>
                 navigation.navigate("Comments", {
-                  //   postId: item.id,
-                  //   photo: item.photo,
-                  //   allComments: item.comments,
+                  postId: item.id,
+                  photo: item.photo,
                 })
               }
             >
@@ -74,9 +79,8 @@ export default function DefaultPostsScreen({ navigation, route }) {
                   activeOpacity={0.7}
                   onPress={() =>
                     navigation.navigate("Comments", {
-                      //   postId: item.id,
-                      //   photo: item.photo,
-                      //   allComments: item.comments,
+                      postId: item.id,
+                      photo: item.photo,
                     })
                   }
                 >
@@ -119,10 +123,7 @@ export default function DefaultPostsScreen({ navigation, route }) {
                 activeOpacity={0.7}
                 onPress={() =>
                   navigation.navigate("Map", {
-                    coords: {
-                      latitude: item.coords.latitude,
-                      longitude: item.coords.longitude,
-                    },
+                    location: item.location,
                     title: item.description,
                     description: item.place,
                   })
@@ -136,7 +137,7 @@ export default function DefaultPostsScreen({ navigation, route }) {
                     textDecorationLine: "underline",
                   }}
                 >
-                  {item.place}
+                  {item.city} {item.place}
                 </Text>
               </TouchableOpacity>
             </View>
